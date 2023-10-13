@@ -14,7 +14,7 @@ digits of the square root of x
 
 int* splitNumber(char* x) {
 
-	int inputLen = strlen(x);
+	int inputLen = (int)strlen(x);
 	int arrayLen = (inputLen + 1) / 2;
 
 	int* pR;
@@ -120,7 +120,7 @@ should be calculated.
 
 int* root(char* a, int decimalPlaces) {
 	
-	if (a[0] == '-') {
+	if ((a[0] == '-') || (decimalPlaces < 0)) {
 		return 0;
 	}
 	
@@ -129,15 +129,19 @@ int* root(char* a, int decimalPlaces) {
 	//The number of pairs gives us the digits before comma for the result
 	int digitsBeforeComma = pSplit[0];  
 	
-	if ((digitsBeforeComma + decimalPlaces - 1) > 8) {
-		return 0;
-	}
-
-	int* outRoot = (int*)calloc(decimalPlaces + digitsBeforeComma + 2, sizeof(int));
+	int allocAmount = decimalPlaces + digitsBeforeComma + 2;
+	int* outRoot = (int*)calloc(allocAmount, sizeof(int));
 	
 	if (outRoot == 0) {
 		free(outRoot);
 		return 0;
+	}
+
+	if (a[0] == '0') {
+		outRoot[0] = 2;
+		outRoot[1] = 2;
+		outRoot[2] = 0;
+		return outRoot;
 	}
 
 	outRoot[0] = decimalPlaces + digitsBeforeComma + 1;
@@ -149,17 +153,16 @@ int* root(char* a, int decimalPlaces) {
 	//c1 is needed everytime, when a new digit is calculated
 	int c1 = firstStepSquareMinus(pSplit[1], firstDigit) * 100;
 
-	int loopLenght = digitsBeforeComma -1 + decimalPlaces;
 	//loopIndex starts with 3, because 0, 1 and 2 are taken by the headers and the first digit
-	int loopIndex = 3;
+	int loopIndex = 0;
 
 	int lenSplit = pSplit[0];
 	bool firstRun = true;
 	int d1 = 0;
 
-	while (loopLenght > 0) {
+	while (loopIndex < (allocAmount-3)) {
 		if (lenSplit > 1) {
-			c1 += pSplit[loopIndex-1];
+			c1 += pSplit[loopIndex+3-1];
 			lenSplit--;
 		}
 		if (firstRun == false) {
@@ -171,7 +174,11 @@ int* root(char* a, int decimalPlaces) {
 
 		d1 = rootDigitCalculator(c1, firstDigit);
 		
-		outRoot[loopIndex] = d1;
+		if ((loopIndex + 3) > (allocAmount - 1)) {
+			break;
+		}
+
+		outRoot[loopIndex+3] = d1;
 
 		c1 = (c1 - ((20 * firstDigit + d1) * d1)) * 100;	
 
@@ -180,7 +187,6 @@ int* root(char* a, int decimalPlaces) {
 			break;
 		}
 
-		loopLenght--;
 		loopIndex++;
 	}
 
