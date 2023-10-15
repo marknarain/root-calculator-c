@@ -411,5 +411,32 @@ namespace roottest
 			Assert::AreEqual(7, testOut[8]);
 			Assert::AreEqual(6, testOut[9]);
 		}
+
+		TEST_METHOD(rootTest21)
+		{
+			int* testOut = root("99999999999999999", 3);
+			Assert::IsNull(testOut);
+		}
+
+		TEST_METHOD(rootTest22)
+		{
+			int* testOut = root("0", 3);
+			Assert::IsNotNull(testOut);
+			Assert::AreEqual(2, testOut[0]);
+			Assert::AreEqual(2, testOut[1]);
+			Assert::AreEqual(0, testOut[2]);
+		}
+
+		TEST_METHOD(rootTest23)
+		{
+			int* testOut = root("-4", 3);
+			Assert::IsNull(testOut);
+		}
+
+		TEST_METHOD(rootTest24)
+		{
+			int* testOut = root("asdf", 3);
+			Assert::IsNull(testOut);
+		}
 	};
 }

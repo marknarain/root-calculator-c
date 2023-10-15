@@ -118,7 +118,14 @@ the parameter decimalPlaces defines how many decimal places after the comma
 should be calculated.
 */
 
+#define HDR_LEN 2
+
 int* root(char* a, int decimalPlaces) {
+
+	if (strlen(a) > 16) {
+		return 0;
+	}
+
 	
 	if ((a[0] == '-') || (decimalPlaces < 0)) {
 		return 0;
@@ -126,10 +133,14 @@ int* root(char* a, int decimalPlaces) {
 	
 	int* pSplit = splitNumber(a);
 
+	if (pSplit == 0) {
+		return 0;
+	}
+
 	//The number of pairs gives us the digits before comma for the result
 	int digitsBeforeComma = pSplit[0];  
 	
-	int allocAmount = decimalPlaces + digitsBeforeComma + 2;
+	int allocAmount = decimalPlaces + digitsBeforeComma + HDR_LEN;
 	int* outRoot = (int*)calloc(allocAmount, sizeof(int));
 	
 	if (outRoot == 0) {
@@ -144,7 +155,7 @@ int* root(char* a, int decimalPlaces) {
 		return outRoot;
 	}
 
-	outRoot[0] = decimalPlaces + digitsBeforeComma + 1;
+	outRoot[0] = decimalPlaces + digitsBeforeComma + HDR_LEN - 1;
 	outRoot[1] = digitsBeforeComma + 1;
 	
 	int firstDigit = rootOfFirstItem(pSplit[1]);
@@ -153,16 +164,15 @@ int* root(char* a, int decimalPlaces) {
 	//c1 is needed everytime, when a new digit is calculated
 	int c1 = firstStepSquareMinus(pSplit[1], firstDigit) * 100;
 
-	//loopIndex starts with 3, because 0, 1 and 2 are taken by the headers and the first digit
 	int loopIndex = 0;
 
 	int lenSplit = pSplit[0];
 	bool firstRun = true;
 	int d1 = 0;
 
-	while (loopIndex < (allocAmount-3)) {
+	while (loopIndex < (allocAmount - HDR_LEN - 1)) {
 		if (lenSplit > 1) {
-			c1 += pSplit[loopIndex+3-1];
+			c1 += pSplit[loopIndex+HDR_LEN];
 			lenSplit--;
 		}
 		if (firstRun == false) {
@@ -174,7 +184,7 @@ int* root(char* a, int decimalPlaces) {
 
 		d1 = rootDigitCalculator(c1, firstDigit);
 		
-		if ((loopIndex + 3) > (allocAmount - 1)) {
+		if ((loopIndex + HDR_LEN + 1) > (allocAmount - HDR_LEN + 1)) {
 			break;
 		}
 
@@ -182,7 +192,7 @@ int* root(char* a, int decimalPlaces) {
 
 		c1 = (c1 - ((20 * firstDigit + d1) * d1)) * 100;	
 
-		if ((c1 == 0)) {
+		if (c1 == 0) {
 			outRoot[0] = digitsBeforeComma + 1;
 			break;
 		}
